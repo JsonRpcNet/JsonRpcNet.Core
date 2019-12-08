@@ -13,4 +13,8 @@
     <ProjectReference Include="..\JsonRpcNet\JsonRpcNet.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="web\**\*" />
+  </ItemGroup>
+
 </Project>

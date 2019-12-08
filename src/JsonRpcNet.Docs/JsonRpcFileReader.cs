@@ -21,7 +21,7 @@ namespace JsonRpcNet.Docs
             Converters = new List<JsonConverter>{new StringEnumConverter()}
         };
         
-		const string staticResourcesPath = "web.dist";
+		const string staticResourcesPath = "web";
         public static FileContent GetFile(string requestPath, JsonRpcInfo info)
         {
             var basePath = info?.JsonRpcApiEndpoint ?? "/jsonrpc";
