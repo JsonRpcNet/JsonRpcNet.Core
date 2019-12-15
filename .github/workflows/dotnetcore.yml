@@ -14,4 +14,4 @@ jobs:
       with:
         dotnet-version: 2.2.108
     - name: Build with dotnet
-      run: dotnet build JsonRpcNet.Core.sln --configuration Release
+      run: dotnet build src/JsonRpcNet.Core.sln --configuration Release
