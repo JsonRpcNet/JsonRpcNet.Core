@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JsonRpcNet
@@ -12,14 +13,14 @@ namespace JsonRpcNet
         private IWebSocket _webSocket;
         private static readonly IDictionary<string, IWebSocket> Sockets = new Dictionary<string, IWebSocket>();
 
-        async Task IWebSocketConnection.HandleMessagesAsync(IWebSocket socket)
+        async Task IWebSocketConnection.HandleMessagesAsync(IWebSocket socket, CancellationToken cancellation)
         {
             _webSocket = socket;
             Sockets[socket.Id] = socket;
             await OnConnected();
             while (_webSocket.WebSocketState == JsonRpcWebSocketState.Open)
             {
-                var (type, buffer) = await _webSocket.ReceiveAsync();
+                var (type, buffer) = await _webSocket.ReceiveAsync(cancellation);
                 string message = null;
                 if (buffer.Array == null)
                 {

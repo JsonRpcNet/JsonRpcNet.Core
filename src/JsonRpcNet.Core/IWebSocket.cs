@@ -17,6 +17,6 @@ namespace JsonRpcNet
 
         Task CloseAsync(int code, string reason);
 
-        Task<(MessageType messageType, ArraySegment<byte> data)> ReceiveAsync();
+        Task<(MessageType messageType, ArraySegment<byte> data)> ReceiveAsync(CancellationToken cancellation);
     }
 }
