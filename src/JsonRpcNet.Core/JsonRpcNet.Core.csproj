@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>JsonRpcNet</RootNamespace>
+        <Version>0.1.1</Version>
         <PackageVersion>0.1.1</PackageVersion>
         <Title>JsonRpcNet.Core</Title>
         <Description>Core library for adding JsonRpc support to your application</Description>

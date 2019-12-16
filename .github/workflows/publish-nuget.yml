@@ -26,4 +26,4 @@ jobs:
         with:
           project_dir: src/JsonRpcNet.Core
           tag_format: v* # [*] gets replaced with version
-        #   nuget_key: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+          nuget_key: ${{secrets.NUGET_API_KEY}} # nuget.org API key
