@@ -16,7 +16,7 @@ namespace JsonRpcNet
 			{
 				methodCache = type.GetMethods()
 					.Where(m => m.IsPublic)
-					.ToDictionary(m => m.Name, m =>
+					.ToDictionary(m => m.Name.ToLowerInvariant(), m =>
 					{
 						var authorizeAttribute = m.GetCustomAttribute<AuthorizeAttribute>();
 						if (authorizeAttribute == null)
