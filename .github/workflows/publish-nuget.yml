@@ -13,6 +13,18 @@ jobs:
         with:
           fetch-depth: 2 # This must be >= 2 to compare commits
 
+      - name: Download JsonRpcNet.Docs.Ui
+        uses: fabriciobastian/download-release-asset-action@v1.0.2
+        with:
+          version: latest
+          repository: JsonRpcNet/JsonRpcNet.Docs.Ui
+          file: jsonrpcnet-docs-ui.zip
+      - name: Unzip JsonRpcNet.Docs.Ui and move it into project
+        run: |
+          unzip jsonrpcnet-docs-ui.zip
+          rm -v jsonrpcnet-docs-ui.zip
+          mv -v ./dist ./src/JsonRpcNet.Core/web
+
       # Optional step, add only for a specific dotnet version that doesn't come with ubuntu-latest
       # For a list of software that comes pre-installed with ubuntu-latest visit bit.ly/2synnZl
       # - name: Setup dotnet
