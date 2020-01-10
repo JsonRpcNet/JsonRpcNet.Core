@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public class JsonRpcTypeInfo
     {

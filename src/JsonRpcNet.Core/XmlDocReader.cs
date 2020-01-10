@@ -31,7 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     static class XmlDocReader
     {

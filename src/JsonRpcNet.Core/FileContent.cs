@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public class FileContent
     {

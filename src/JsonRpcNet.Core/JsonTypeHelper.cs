@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public static class JsonTypeHelper
     {

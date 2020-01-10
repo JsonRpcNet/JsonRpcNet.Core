@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
 	public static class MimeTypeProvider
 	{

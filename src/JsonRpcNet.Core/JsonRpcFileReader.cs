@@ -10,7 +10,7 @@ using Newtonsoft.Json.Serialization;
 using NJsonSchema;
 using NJsonSchema.Generation;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public static class JsonRpcFileReader
     {
@@ -19,8 +19,7 @@ namespace JsonRpcNet.Docs
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             Converters = new List<JsonConverter>{new StringEnumConverter()}
         };
-        
-		const string staticResourcesPath = "web";
+
         public static FileContent GetFile(string requestPath, JsonRpcInfo info)
         {
             var basePath = info?.JsonRpcApiEndpoint ?? "/jsonrpc";
@@ -104,7 +103,7 @@ namespace JsonRpcNet.Docs
                 filePath = requestPath.Substring(basePath.Length + 1);
                 filePath = filePath.Replace("/", ".");
             }
-            var embeddedResource = $"{typeof(JsonRpcDoc).Namespace}.{staticResourcesPath}.{filePath}";
+            var embeddedResource = $"{typeof(JsonRpcDoc).Namespace}.web.{filePath}";
             using (var stream = typeof(JsonRpcDoc).Assembly.GetManifestResourceStream(embeddedResource))
             {
                 byte[] buffer = null;

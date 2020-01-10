@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public class JsonRpcContact
     {

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using JsonRpcNet.Attributes;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public static class DocGenerator
     {

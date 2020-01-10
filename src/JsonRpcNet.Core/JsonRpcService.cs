@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace JsonRpcNet.Docs
+namespace JsonRpcNet
 {
     public class JsonRpcService
     {
