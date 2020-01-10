@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 
 namespace JsonRpcNet.Authentication
 {
