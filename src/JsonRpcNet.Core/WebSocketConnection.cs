@@ -18,6 +18,7 @@ namespace JsonRpcNet
             _webSocket = socket;
             Sockets[socket.Id] = socket;
             await OnConnected();
+            bool onDisconnectedInvoked = false;
             while (_webSocket.WebSocketState == JsonRpcWebSocketState.Open)
             {
                 var (type, buffer) = await _webSocket.ReceiveAsync(cancellation);
@@ -40,12 +41,17 @@ namespace JsonRpcNet
                         await OnBinaryMessage(buffer);
                         break;
                     case MessageType.Close:
-                        Sockets.Remove(_webSocket.Id);
                         await OnDisconnected(CloseStatusCode.Normal, message);
+                        onDisconnectedInvoked = true;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+            }
+            Sockets.Remove(_webSocket.Id);
+            if (!onDisconnectedInvoked)
+            {
+                await OnDisconnected(CloseStatusCode.Normal, "Socket closed");
             }
         }
 
@@ -74,11 +80,11 @@ namespace JsonRpcNet
 
         protected async Task BroadcastAsync(string message)
         {
-            var tasks = new List<Task>();
-            foreach (var jsonRpcWebSocket in Sockets.Where(kvp => kvp.Key != _webSocket.Id).Select(kvp => kvp.Value))
-            {
-                tasks.Add(jsonRpcWebSocket.SendAsync(message));
-            }
+            var tasks = Sockets
+                .Where(kvp => kvp.Key != _webSocket.Id)
+                .Select(kvp => kvp.Value)
+                .Select(ws => ws.SendAsync(message))
+                .ToList();
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }

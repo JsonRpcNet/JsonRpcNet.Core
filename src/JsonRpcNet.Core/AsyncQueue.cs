@@ -23,7 +23,7 @@ namespace JsonRpcNet
 
         public async Task<T> DequeueAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            for (; ; )
+            for (; ;)
             {
                 await _sem.WaitAsync(cancellationToken);
 

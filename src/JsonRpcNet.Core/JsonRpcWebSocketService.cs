@@ -22,9 +22,8 @@ namespace JsonRpcNet
 				foreach (var eventInfo in events)
 				{
 					var addMethod = eventInfo.GetAddMethod(true);
-					addMethod.Invoke(this, new object[] {EventProxy.Create(eventInfo, e => InvokeNotification(eventInfo, e))});
-//					eventInfo
-//						.AddEventHandler(this, EventProxy.Create(eventInfo, e => InvokeNotification(eventInfo, e)));
+					addMethod.Invoke(this,
+						new object[] {EventProxy.Create(eventInfo, e => InvokeNotification(eventInfo, e))});
 				}
 			}
 			catch (Exception e)
@@ -35,7 +34,7 @@ namespace JsonRpcNet
 			
 		}
 
-		private void InvokeNotification(EventInfo eventInfo, EventArgs e)
+		private void InvokeNotification(MemberInfo eventInfo, EventArgs e)
 		{
             var notificationObject = new JObject
             {
