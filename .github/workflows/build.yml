@@ -24,5 +24,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.100
-    - name: Build with dotnet
+    - name: Build JsonRpcNet.Core.sln
       run: dotnet build src/JsonRpcNet.Core.sln --configuration Release
+    - name: Test JsonRpcNet.Core.Tests
+      run: dotnet test src/JsonRpcNet.Core.Tests --verbosity normal
