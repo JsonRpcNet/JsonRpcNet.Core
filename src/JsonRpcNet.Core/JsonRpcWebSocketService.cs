@@ -48,12 +48,18 @@ namespace JsonRpcNet
 		
 		protected Task SendAsync(JsonRpcContract jsonRpc)
 		{
-			return SendAsync(jsonRpc.ToJson());
+			return SendAsync(jsonRpc.ToString());
 		}
 
         protected Task BroadcastAsync(JsonRpcContract jsonRpc)
         {
-            return BroadcastAsync(jsonRpc.ToJson());
+            return BroadcastAsync(jsonRpc.ToString());
+        }
+
+        protected override Task OnBinaryMessage(ArraySegment<byte> buffer)
+        {
+	        // nop
+	        return Task.CompletedTask;
         }
 
         protected override async Task OnMessage(string msg)
@@ -145,12 +151,12 @@ namespace JsonRpcNet
 		private MethodInfoWithPermissions GetRequestMethodInfo(JsonRpcRequest request)
 		{
 			var methodCache = MethodCache.Get(this);
-			if (methodCache.TryGetValue(request.Method.ToLowerInvariant(), out var method))
+			if (methodCache.TryGetValue(request.Method, out var method))
 			{
 				return method;
 			}
 
-			var message = $"Unknown method: '{request.Method.ToLowerInvariant()}' valid methods (casing is ignored): " +
+			var message = $"Unknown method: '{request.Method}' valid methods (casing is ignored): " +
 			              $"{string.Join(", ", methodCache.Select(m => m.Key))}";
 			var errorResponse = JsonRpcErrors.MethodNotFound(request.Id, message);
 			throw new JsonRpcErrorException(errorResponse);

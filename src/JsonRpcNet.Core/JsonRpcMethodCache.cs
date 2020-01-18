@@ -12,22 +12,14 @@ namespace JsonRpcNet
 		public Dictionary<string, MethodInfoWithPermissions> Get(JsonRpcWebSocketService service)
 		{
 			var type = service.GetType();
-			if (!_typeMethodCache.TryGetValue(type, out var methodCache))
+			if (_typeMethodCache.TryGetValue(type, out var methodCache))
 			{
-				methodCache = type.GetMethods()
-					.Where(m => m.IsPublic)
-					.ToDictionary(m => m.Name.ToLowerInvariant(), m =>
-					{
-						var authorizeAttribute = m.GetCustomAttribute<AuthorizeAttribute>();
-						if (authorizeAttribute == null)
-						{
-							return new MethodInfoWithPermissions(new FastMethodInfo(m), null, null);
-						}
-
-						return new MethodInfoWithPermissions(new FastMethodInfo(m), authorizeAttribute.Roles, authorizeAttribute.Users);
-					});
-				_typeMethodCache.Add(type, methodCache);
+				return methodCache;
 			}
+
+			methodCache = MethodHelper.CreateMethodCache(type);
+			_typeMethodCache.Add(type, methodCache);
+
 			return methodCache;
 		}
 	}

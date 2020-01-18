@@ -26,7 +26,7 @@ namespace JsonRpcNet.Models
 		[JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
 		public object Id { get; set; }
 
-		public virtual string ToJson()
+		public override string ToString()
 		{
 			return JsonConvert.SerializeObject(this, _serializerSettings);
 		}

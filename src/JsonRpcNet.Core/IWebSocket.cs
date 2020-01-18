@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,12 @@ namespace JsonRpcNet
         JsonRpcWebSocketState WebSocketState { get; }
 
         Task SendAsync(string message);
+
+        Task SendAsync(byte buffer);
+
+        Task SendAsync(Stream stream, int length);
+
+        Task SendAsync(FileInfo fileInfo);
 
         Task CloseAsync(int code, string reason);
 

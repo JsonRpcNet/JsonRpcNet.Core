@@ -36,42 +36,28 @@ namespace JsonRpcNet
                 Path = serviceAttribute?.Path ?? type.Name.ToLower(),
                 Description = serviceAttribute?.Description ?? string.Empty
             };
+
+            var methodMetaData = MethodHelper.GetRpcMethods(type);
             
-            var methodMetaData = type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(m => m.GetCustomAttribute(typeof(JsonRpcMethodAttribute)) != null)
-                .Select(m => new
-                {
-                    Attribute = (JsonRpcMethodAttribute) m.GetCustomAttribute(typeof(JsonRpcMethodAttribute)),
-                    MethodInfo = m
-                })
-                .ToList();
-            
-            foreach (var m in methodMetaData)
+            foreach (var (attribute, methodInfo) in methodMetaData)
             {
-                var parameters = m.MethodInfo.GetParameters();
-                var method = new JsonRpcMethod(m.MethodInfo, parameters)
+                var parameters = methodInfo.GetParameters();
+                var method = new JsonRpcMethod(methodInfo, parameters)
                 {
-                    Name = m.Attribute.Name,
-                    Description = m.Attribute.Description
+                    Name = attribute.Name,
+                    Description = attribute.Description
                 };
                 serviceDoc.Methods.Add(method);
             }
 
-            var notificationMetaData = type.GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(m => m.GetCustomAttribute(typeof(JsonRpcNotificationAttribute)) != null)
-                .Select(m => new
-                {
-                    Attribute = (JsonRpcNotificationAttribute) m.GetCustomAttribute(typeof(JsonRpcNotificationAttribute)),
-                    EventInfo = m
-                })
-                .ToList();
+            var notificationMetaData = MethodHelper.GetRpcNotifications(type);
             
-            foreach (var m in notificationMetaData)
+            foreach (var (attribute, eventInfo) in notificationMetaData)
             {
-                var notification = new JsonRpcNotification(m.EventInfo)
+                var notification = new JsonRpcNotification(eventInfo)
                 {
-                    Name = m.Attribute.Name,
-                    Description = m.Attribute.Description
+                    Name = attribute.Name,
+                    Description = attribute.Description
                 };
                 serviceDoc.Notifications.Add(notification);
             }
