@@ -1,3 +1,3 @@
-# JsonRpcNet.Ui
+# JsonRpcNet.Core
 
-JsonRpcNet Web User Interface documentation page
+JsonRpcNet Core module documentation page
