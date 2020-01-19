@@ -1,0 +1,9 @@
+theme: jekyll-theme-cayman
+logo: /assets/images/banner-JsonRpcNet.png
+title: JsonRpcNet Core
+description: Core module
+organization_page_url: https://jsonrpcnet.github.io/
+google_analytics: UA-156036328-3
+github:
+  repo_url: https://github.com/JsonRpcNet/JsonRpcNet.Core
+  nuget_url: https://www.nuget.org/packages/JsonRpcNet.Core/
