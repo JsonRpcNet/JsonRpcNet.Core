@@ -16,6 +16,15 @@ namespace JsonRpcNet.Core.Tests
         public IList<string> Messages { get; } = new Collection<string>();
         public IList<ArraySegment<byte>> BinaryMessages { get; } = new Collection<ArraySegment<byte>>();
 
+        public void Close()
+        {
+            CloseAsync(CloseStatusCode.Normal, "test").GetAwaiter().GetResult();
+        }
+
+        public void Send(string message)
+        {
+            SendAsync(message).GetAwaiter().GetResult();
+        }
         public bool ConnectedCalled { get; private set; } = false;
         public bool DisconnectedCalled { get; private set; } = false;
         protected override Task OnMessage(string message)
@@ -129,14 +138,7 @@ namespace JsonRpcNet.Core.Tests
                 TaskCreationOptions.LongRunning);
             signal.WaitOne();
             // ACT
-            // invoking overload with two parameters
-            var mInfoMethod =
-                typeof(WebSocketConnection).GetMethod(
-                    "CloseAsync",
-                    BindingFlags.Instance | BindingFlags.NonPublic);
-
-            mInfoMethod?.Invoke(_webSocketConnection, new object[] {CloseStatusCode.Normal, "test"});
-
+            _webSocketConnection.Close();
             // ASSERT
             handlerTask.Wait();
             _webSocketMock.Verify(m => m.CloseAsync((int) CloseStatusCode.Normal, "test"), Times.Once);
@@ -171,13 +173,8 @@ namespace JsonRpcNet.Core.Tests
             signal.WaitOne();
             // ACT
             // invoking overload with two parameters
-            var mInfoMethod =
-                typeof(WebSocketConnection).GetMethod(
-                    "SendAsync",
-                    BindingFlags.Instance | BindingFlags.NonPublic);
-
-            mInfoMethod?.Invoke(_webSocketConnection, new object[] {"test"});
-
+            _webSocketConnection.Send("test");
+            
             // ASSERT
             handlerTask.Wait();
             _webSocketMock.Verify(m => m.SendAsync("test"), Times.Once);
