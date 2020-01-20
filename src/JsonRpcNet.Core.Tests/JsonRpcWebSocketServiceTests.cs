@@ -12,15 +12,26 @@ using NUnit.Framework;
 
 namespace JsonRpcNet.Core.Tests
 {
+    class TestEventArgs : EventArgs
+    {
+        public string Message { get; set; }
+    }
     class TestWebSocketService : JsonRpcWebSocketService
     {
+        [JsonRpcNotification(Description = "test", Name = "EventWithArgs")]
+        private event EventHandler<TestEventArgs> TestEventWithArgs;
+        
         public IList<string> MethodsInvoked { get; } = new List<string>();
-
-        public TestWebSocketService()
+        
+        public void InvokeWithArgs(string message)
         {
-
+            TestEventWithArgs?.Invoke(this, new TestEventArgs {Message = message});
         }
-
+        
+        public void InvokeNoArgs()
+        {
+            TestEventNoArgs?.Invoke(this, EventArgs.Empty);
+        }
         [JsonRpcMethod]
         private void TestMethod()
         {
@@ -54,8 +65,6 @@ namespace JsonRpcNet.Core.Tests
         private TestWebSocketService _webSocketService;
         private IWebSocketConnection _webSocketConnection;
         private Mock<IWebSocket> _webSocketMock;
-        private CancellationTokenSource _cts;
-        private Task _handleMessageTask;
 
         [SetUp]
         public void SetUp()
@@ -65,15 +74,6 @@ namespace JsonRpcNet.Core.Tests
             _webSocketMock.Setup(m => m.Id).Returns(Guid.NewGuid().ToString("N"));
             _webSocketService = new TestWebSocketService();
             _webSocketConnection = _webSocketService;
-            _cts = new CancellationTokenSource();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            _cts.Cancel();
-            _cts.Dispose();
-            _handleMessageTask.Wait(100);
         }
 
         [Test, Category("Unit")]
@@ -103,8 +103,7 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None).Wait(100);
 
             // ASSERT
             Assert.That(_webSocketService.MethodsInvoked, Contains.Item("TestMethod2"));
@@ -140,8 +139,8 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None)
+                    .Wait(100);
 
             // ASSERT
             Assert.That(_webSocketService.MethodsInvoked, Contains.Item("TestMethod"));
@@ -176,8 +175,8 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None)
+                    .Wait(100);
 
             // ASSERT
             Assert.That(_webSocketService.MethodsInvoked, Contains.Item("TestMethodWithParams"));
@@ -219,8 +218,8 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None)
+                    .Wait(100);
 
             // ASSERT
             Assert.That(_webSocketService.MethodsInvoked, Contains.Item("TestMethodWithParams"));
@@ -256,8 +255,8 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None)
+                    .Wait(100);
 
             // ASSERT
             Assert.That(result, Is.Not.Null);
@@ -292,8 +291,8 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None)
+                    .Wait(100);
 
             // ASSERT
             Assert.That(_webSocketService.MethodsInvoked, Contains.Item("Throws"));
@@ -329,14 +328,42 @@ namespace JsonRpcNet.Core.Tests
 
 
             // ACT
-            _handleMessageTask =
-                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+                _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None)
+                    .Wait(100);
 
             // ASSERT
             Assert.That(_webSocketService.MethodsInvoked, Is.Empty);
             Assert.That(result, Is.Not.Null);
             Assert.That(jsonRpcMethodRequest.Id, Is.EqualTo(result["id"].Value<int>()));
             Assert.That(-32601, Is.EqualTo(result["error"]["code"].Value<int>()));
+        }
+
+        [Test, Category("Unit")]
+        public void Event_WithArgs_SentToClients()
+        {
+            // ARRANGE
+            JObject notification = null;
+            var tcs = new TaskCompletionSource<(MessageType, ArraySegment<byte>)>();
+
+            _webSocketMock.Setup(m => m.ReceiveAsync(CancellationToken.None)).Returns(tcs.Task);
+            _webSocketMock.Setup(m => m.SendAsync(It.IsAny<string>()))
+                .Callback((string s) =>
+                {
+                    notification = JObject.Parse(s);
+                    _webSocketMock.Setup(m => m.WebSocketState).Returns(JsonRpcWebSocketState.Closed);
+                    tcs.SetResult((MessageType.Close, ArraySegment<byte>.Empty));
+                })
+                .Returns(Task.CompletedTask);
+            
+            _webSocketConnection.HandleMessagesAsync(_webSocketMock.Object, CancellationToken.None);
+            
+            // ACT
+            Task.Run(() => _webSocketService.InvokeWithArgs("test"));
+            tcs.Task.Wait(1000);
+            // ASSERT
+            Assert.That(notification, Is.Not.Null);
+            Assert.That(notification["method"].Value<string>(), Is.EqualTo("EventWithArgs"));
+            Assert.That(notification["params"][0]["Message"].Value<string>(), Is.EqualTo("test"));
         }
     }
 }

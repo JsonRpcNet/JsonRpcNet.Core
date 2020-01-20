@@ -11,6 +11,7 @@ namespace JsonRpcNet
 	public abstract class JsonRpcWebSocketService : WebSocketConnection
 	{
 		private static readonly JsonRpcMethodCache MethodCache = new JsonRpcMethodCache();
+		private static readonly JsonRpcNotificationCache NotificationCache = new JsonRpcNotificationCache();
 		
 		private const string TokenQueryString = "token";
 		
@@ -18,13 +19,17 @@ namespace JsonRpcNet
 		{
 			try
 			{
-				var events = GetType().GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-				foreach (var eventInfo in events)
+				foreach (var (addMethod, @delegate) in NotificationCache.Get(this))
 				{
-					var addMethod = eventInfo.GetAddMethod(true);
-					addMethod.Invoke(this,
-						new object[] {EventProxy.Create(eventInfo, e => InvokeNotification(eventInfo, e))});
+					addMethod.Invoke(this, new object[] {@delegate});
 				}
+				// var events = GetType().GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+				// foreach (var eventInfo in events)
+				// {
+				// 	var addMethod = eventInfo.GetAddMethod(true);
+				// 	addMethod.Invoke(this,
+				// 		new object[] {EventProxy.Create(eventInfo, e => InvokeNotification(eventInfo.Name, e))});
+				// }
 			}
 			catch (Exception e)
 			{
@@ -34,12 +39,12 @@ namespace JsonRpcNet
 			
 		}
 
-		private void InvokeNotification(MemberInfo eventInfo, EventArgs e)
+		internal void InvokeNotification(string eventName, EventArgs e)
 		{
             var notificationObject = new JObject
             {
                 ["jsonrpc"] = "2.0",
-                ["method"] = eventInfo.Name,
+                ["method"] = eventName,
                 ["params"] = new JArray(JObject.FromObject(e))
 			};
             SendAsync(JsonConvert.SerializeObject(notificationObject, JsonRpcContract.SerializerSettings))

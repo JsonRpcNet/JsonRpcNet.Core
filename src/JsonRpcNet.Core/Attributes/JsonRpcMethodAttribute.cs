@@ -5,13 +5,5 @@
 	{
 		public string Name { get; set; }
 		public string Description { get; set; }
-		
-		public JsonRpcMethodAttribute(string name)
-		{
-			Name = name;
-		}
-		public JsonRpcMethodAttribute() : this(null)
-		{
-		}
 	}
 }
