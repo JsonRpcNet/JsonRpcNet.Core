@@ -28,10 +28,6 @@ namespace JsonRpcNet.Core.Tests
             TestEventWithArgs?.Invoke(this, new TestEventArgs {Message = message});
         }
         
-        public void InvokeNoArgs()
-        {
-            TestEventNoArgs?.Invoke(this, EventArgs.Empty);
-        }
         [JsonRpcMethod]
         private void TestMethod()
         {
