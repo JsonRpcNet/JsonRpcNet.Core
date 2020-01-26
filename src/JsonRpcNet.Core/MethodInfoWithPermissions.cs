@@ -24,11 +24,11 @@ namespace JsonRpcNet
 		}
 
 		public MethodInfoWithPermissions(MethodInfo methodInfo, JsonRpcMethodAttribute jsonRpcMethodAttribute,
-			AuthorizeAttribute authorizeAttribute)
+			JsonRpcAuthorizeAttribute jsonRpcAuthorizeAttribute)
 		{
 			MethodInfo = new FastMethodInfo(methodInfo);
-			Roles = authorizeAttribute?.Roles;
-			Users = authorizeAttribute?.Users;
+			Roles = jsonRpcAuthorizeAttribute?.Roles;
+			Users = jsonRpcAuthorizeAttribute?.Users;
 			RpcName = jsonRpcMethodAttribute?.Name ?? methodInfo.Name;
 		}
 

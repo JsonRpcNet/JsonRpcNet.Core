@@ -18,7 +18,7 @@ namespace JsonRpcNet
             var eventHandlerType = eventInfo.EventHandlerType.GetGenericArguments().Single();
             Parameters = new List<JsonRpcTypeInfo>
             {
-                new JsonRpcTypeInfo("eventArgs", eventHandlerType)
+                new JsonRpcTypeInfo(eventHandlerType)
             };   
         }
         

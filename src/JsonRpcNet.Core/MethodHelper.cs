@@ -32,7 +32,7 @@ namespace JsonRpcNet
             foreach (var (attribute, methodInfo) in methods)
             {
                 var name = string.IsNullOrEmpty(attribute.Name) ? methodInfo.Name : attribute.Name;
-                var authorizeAttribute = methodInfo.GetCustomAttribute<AuthorizeAttribute>();
+                var authorizeAttribute = methodInfo.GetCustomAttribute<JsonRpcAuthorizeAttribute>();
                 
                 var methodInvoker = authorizeAttribute == null
                     ? new MethodInfoWithPermissions(methodInfo, attribute)

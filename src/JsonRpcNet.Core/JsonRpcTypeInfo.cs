@@ -11,7 +11,7 @@ namespace JsonRpcNet
         [JsonIgnore]
         public Type Type { get; }
 
-        public JsonRpcTypeInfo(Type type) : this(null, type)
+        public JsonRpcTypeInfo(Type type) : this(type.Name, type)
         {
             
         }

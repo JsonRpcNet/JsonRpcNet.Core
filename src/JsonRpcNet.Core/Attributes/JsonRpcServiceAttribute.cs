@@ -6,9 +6,9 @@ namespace JsonRpcNet.Attributes
     public class JsonRpcServiceAttribute : System.Attribute
     {
         public string Path { get; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 		
         public JsonRpcServiceAttribute(string path)
         {
