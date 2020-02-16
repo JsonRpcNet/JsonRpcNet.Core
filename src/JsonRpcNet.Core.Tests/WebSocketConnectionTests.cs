@@ -50,6 +50,11 @@ namespace JsonRpcNet.Core.Tests
             DisconnectedCalled = true;
             return base.OnDisconnected(statusCode, reason);
         }
+
+        public TestWebSocketConnection(JsonRpcConnectionManager connectionManager) 
+            : base(connectionManager)
+        {
+        }
     }
 
     [TestFixture]
@@ -58,15 +63,27 @@ namespace JsonRpcNet.Core.Tests
         private Mock<IWebSocket> _webSocketMock;
         private TestWebSocketConnection _webSocketConnection;
         private IWebSocketConnection Connection => (IWebSocketConnection) _webSocketConnection;
+        private Mock<JsonRpcConnectionManager> _connectionManagerMock;
         [SetUp]
         public void SetUp()
         {
+            _connectionManagerMock = new Mock<JsonRpcConnectionManager>(MockBehavior.Strict);
             _webSocketMock = new Mock<IWebSocket>(MockBehavior.Strict);
-            _webSocketConnection = new TestWebSocketConnection();
+            _webSocketConnection = new TestWebSocketConnection(_connectionManagerMock.Object);
             _webSocketMock.Setup(m => m.WebSocketState)
                 .Returns(JsonRpcWebSocketState.Open)
                 .Callback(() => _webSocketMock.Setup(m => m.WebSocketState).Returns(JsonRpcWebSocketState.Closed));
             _webSocketMock.Setup(m => m.Id).Returns("test");
+            
+            _connectionManagerMock.Setup(m => m.AddSession(_webSocketConnection));
+            _connectionManagerMock.Setup(m => m.RemoveSession(_webSocketConnection));
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _connectionManagerMock.Verify(m => m.AddSession(_webSocketConnection), Times.Once);
+            _connectionManagerMock.Verify(m => m.RemoveSession(_webSocketConnection), Times.Once);
         }
 
         [Test, Category("Unit")]

@@ -8,11 +8,21 @@ namespace JsonRpcNet.Core.Tests
     [JsonRpcService("/test", Description = "test", Name = "test")]
     public class TestWebSocketService : JsonRpcWebSocketService
     {
+        public TestWebSocketService()
+        {
+            
+        }
+
+        public TestWebSocketService(JsonRpcConnectionManager connectionManager) : base(connectionManager)
+        {
+            
+        }
         [JsonRpcNotification(Description = "test", Name = "EventWithArgs")]
         private event EventHandler<TestEventArgs> TestEventWithArgs;
         
         public IList<string> MethodsInvoked { get; } = new List<string>();
         
+        [JsonRpcNotification(Name = "TestEvent", Description = "test")]
         public void InvokeWithArgs(string message)
         {
             TestEventWithArgs?.Invoke(this, new TestEventArgs {Message = message});

@@ -10,33 +10,32 @@ namespace JsonRpcNet
 {
 	public abstract class JsonRpcWebSocketService : WebSocketConnection
 	{
+		public string Id => WebSocket?.Id ?? "";
+		private readonly JsonRpcConnectionManager _connectionManager;
 		private static readonly JsonRpcMethodCache MethodCache = new JsonRpcMethodCache();
 		private static readonly JsonRpcNotificationCache NotificationCache = new JsonRpcNotificationCache();
 		
 		private const string TokenQueryString = "token";
-		
-		protected JsonRpcWebSocketService()
+
+		protected JsonRpcWebSocketService() : this(JsonRpcConnectionManager.Default)
 		{
+			
+		}
+		protected JsonRpcWebSocketService(JsonRpcConnectionManager connectionManager) : base(connectionManager)
+		{
+			_connectionManager = connectionManager;
 			try
 			{
 				foreach (var (addMethod, @delegate) in NotificationCache.Get(this))
 				{
 					addMethod.Invoke(this, new object[] {@delegate});
 				}
-				// var events = GetType().GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-				// foreach (var eventInfo in events)
-				// {
-				// 	var addMethod = eventInfo.GetAddMethod(true);
-				// 	addMethod.Invoke(this,
-				// 		new object[] {EventProxy.Create(eventInfo, e => InvokeNotification(eventInfo.Name, e))});
-				// }
 			}
 			catch (Exception e)
 			{
 				Console.WriteLine(e);
 				throw;
 			}
-			
 		}
 
 		internal void InvokeNotification(string eventName, EventArgs e)
@@ -47,19 +46,24 @@ namespace JsonRpcNet
                 ["method"] = eventName,
                 ["params"] = new JArray(JObject.FromObject(e))
 			};
-            SendAsync(JsonConvert.SerializeObject(notificationObject, JsonRpcContract.SerializerSettings))
-				.ContinueWith(t => Console.WriteLine("Notification send result: " + t.Status));
+            Console.WriteLine("InvokeNotification");
+            var notification = JsonConvert.SerializeObject(notificationObject, JsonRpcContract.SerializerSettings);
+            SendAsync(notification)
+				.ContinueWith(t =>
+				{
+					Console.WriteLine("Notification send result: " + t.Status);
+					if (t.Exception != null)
+					{
+						Console.WriteLine("Exception: " + t.Exception);
+					}
+				});
 		}
 		
 		protected Task SendAsync(JsonRpcContract jsonRpc)
 		{
+			Console.WriteLine("InvokeNotification");
 			return SendAsync(jsonRpc.ToString());
 		}
-
-        protected Task BroadcastAsync(JsonRpcContract jsonRpc)
-        {
-            return BroadcastAsync(jsonRpc.ToString());
-        }
 
         protected override Task OnBinaryMessage(ArraySegment<byte> buffer)
         {
@@ -92,6 +96,7 @@ namespace JsonRpcNet
 		
 		protected override Task OnConnected()
 		{
+			_connectionManager.AddSession(this);
 			var userEndPointIpAddress = GetUserEndpointIpAddress();
 //			var identity = GetIdentity();
 //			if (identity == null || userEndPointIpAddress == null)
@@ -115,6 +120,7 @@ namespace JsonRpcNet
 
 		protected override Task OnDisconnected(CloseStatusCode code, string reason)
 		{
+			_connectionManager.RemoveSession(this);
 //			_connectionManager.Remove(ID);
 //
 //			JsonRpcWebSocketServiceEventSource.Log.ConnectionClosed(ID, GetType().Name);
