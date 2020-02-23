@@ -16,7 +16,7 @@ namespace JsonRpcNet
 
         Task SendAsync(string message);
 
-        Task SendAsync(byte buffer);
+        Task SendAsync(byte[] buffer);
 
         Task SendAsync(Stream stream, int length);
 
