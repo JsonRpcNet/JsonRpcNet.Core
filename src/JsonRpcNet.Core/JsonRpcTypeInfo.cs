@@ -11,12 +11,7 @@ namespace JsonRpcNet
         [JsonIgnore]
         public Type Type { get; }
 
-        public JsonRpcTypeInfo(Type type) : this(type.Name, type)
-        {
-            
-        }
-
-        public JsonRpcTypeInfo(string name, Type type)
+        public JsonRpcTypeInfo(Type type)
         {
             if (typeof(Task).IsAssignableFrom(type) && type.IsGenericType)
             {
@@ -27,7 +22,6 @@ namespace JsonRpcNet
                 Type = type; 
             }
             
-            Name = name;
             var schemaType = JsonTypeHelper.GetSchemaTypeString(Type);
             Schema = new Dictionary<string, object>
             {
@@ -54,9 +48,6 @@ namespace JsonRpcNet
                     };
             }
         }
-
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; }
 
         [JsonProperty("required")]
         public bool Required { get; } = true;

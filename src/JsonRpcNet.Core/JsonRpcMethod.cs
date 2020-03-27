@@ -16,9 +16,9 @@ namespace JsonRpcNet
             }
             Name = methodInfo.Name;
 
-            Response = new JsonRpcTypeInfo(methodInfo.ReturnType);
+            Response = new JsonRpcResponseInfo(methodInfo.ReturnType);
             Parameters = parameters
-                .Select(p => new JsonRpcTypeInfo(p.Name, p.ParameterType)).ToList();
+                .Select(p => new JsonRpcParameterInfo(p.Name, p.ParameterType)).ToList();
         }
         
         [JsonProperty("name")]
@@ -28,9 +28,9 @@ namespace JsonRpcNet
         public string Description { get; set; } = string.Empty;
 
         [JsonProperty("response")]
-        public JsonRpcTypeInfo Response { get; }
+        public JsonRpcResponseInfo Response { get; }
         
         [JsonProperty("params")]
-        public IList<JsonRpcTypeInfo> Parameters { get; }
+        public IList<JsonRpcParameterInfo> Parameters { get; }
     }
 }

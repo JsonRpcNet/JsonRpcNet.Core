@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace JsonRpcNet
@@ -28,6 +29,12 @@ namespace JsonRpcNet
                     {
                         return "void";
                     }
+
+                    if (typeof(Task).IsAssignableFrom(type) && type.IsGenericType)
+                    {
+                        return GetSchemaTypeString(type.GenericTypeArguments.First());
+                    }
+                    
                     return typeof(IEnumerable<object>).IsAssignableFrom(type) ? 
                     "array" : 
                     "object";
